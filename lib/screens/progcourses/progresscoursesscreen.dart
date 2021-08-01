@@ -67,7 +67,9 @@ class _MainScreenState extends State<MainScreen> {
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).dividerColor),
           ),
-          subtitle: Text('Credit hours:${course.credit} • GPA: ${course.gpa}'),
+          subtitle: Text(course.status == 1
+              ? 'Credit hours:${course.credit} • GPA: ${course.gpa}'
+              : 'Credit hours:${course.credit} • GPA: PC'),
           trailing: IconButton(
             icon: Icon(
               Icons.edit,
@@ -153,6 +155,7 @@ class _MainScreenState extends State<MainScreen> {
                   int sum = 0;
                   double gpasum = 0;
                   int creprog = 0;
+                  int covidSum = 0;
                   bool error = false;
                   for (int i = 0; i < snapshot.data.length; i++) {
                     cred = snapshot.data[i].credit;
@@ -169,8 +172,13 @@ class _MainScreenState extends State<MainScreen> {
                         error = true;
                       }
                     }
+                    if (snapshot.data[i].status == 0) {
+                      covidSum = covidSum + cred;
+                    }
                     gpasum = gpasum +
-                        (snapshot.data[i].credit * snapshot.data[i].gpa);
+                        (snapshot.data[i].credit *
+                            snapshot.data[i].gpa *
+                            snapshot.data[i].status);
                   }
 
                   return ListView.builder(
@@ -267,9 +275,10 @@ class _MainScreenState extends State<MainScreen> {
                                       ),
                                       SizedBox(height: 3),
                                       Text(
-                                        snapshot.data.length == 0
+                                        snapshot.data.length == 0 ||
+                                                sum - covidSum == 0
                                             ? '0.000'
-                                            : '${(gpasum / sum).toStringAsFixed(3)}',
+                                            : '${(gpasum / (sum - covidSum)).toStringAsFixed(3)}',
                                         style: TextStyle(
                                             fontSize: 18, color: Colors.white),
                                       )
@@ -352,7 +361,7 @@ class _MainScreenState extends State<MainScreen> {
                                             MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            '$sum',
+                                            '$creprog',
                                             style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,

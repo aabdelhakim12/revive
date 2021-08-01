@@ -19,6 +19,9 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   String _title;
   int _credit;
   double _gpa;
+  int _status;
+
+  bool covid = false;
 
   final List<int> _credits = [2, 3, 4, 6];
 
@@ -31,7 +34,10 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
       _title = widget.course.title;
       _gpa = widget.course.gpa;
       _credit = widget.course.credit;
+      _status = widget.course.status;
     }
+    if (_status == 0) covid = true;
+    if (_status == 1) covid = false;
   }
 
   @override
@@ -49,9 +55,17 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   _submit() {
     setState(() {
       if (_formKey.currentState.validate()) {
+        if (covid) {
+          _status = 0;
+        } else {
+          _status = 1;
+        }
+        print(_status);
         _formKey.currentState.save();
         // insert course to our database
-        Course course = Course(title: _title, credit: _credit, gpa: _gpa);
+        Course course =
+            Course(title: _title, credit: _credit, gpa: _gpa, status: _status);
+
         if (widget.course == null) {
           DatabaseHelper.instance.insertCourse(course);
         } else {
@@ -63,6 +77,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
             .pushNamedAndRemoveUntil(DrawerS.routeName, (route) => false);
         Navigator.of(context).pushNamed(MainScreen.routeName);
       }
+      print(covid);
     });
   }
 
@@ -81,7 +96,6 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         flexibleSpace: Container(
@@ -195,6 +209,20 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                             },
                           ),
                         ),
+                        CheckboxListTile(
+                            title: Text(
+                              'Was this course passed?',
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20),
+                            ),
+                            value: covid,
+                            onChanged: (value) {
+                              setState(() {
+                                covid = value;
+                              });
+                            }),
                         SizedBox(
                           height: 10,
                         ),
