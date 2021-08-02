@@ -6,8 +6,9 @@ class GpaCalcScreen extends StatefulWidget {
   final int n;
   final int totalOldCreidt;
   final double oldGpa;
+  final int covid;
 
-  GpaCalcScreen({this.n, this.totalOldCreidt, this.oldGpa});
+  GpaCalcScreen({this.n, this.totalOldCreidt, this.oldGpa, this.covid});
 
   @override
   GpaCalcScreenstate createState() => new GpaCalcScreenstate();
@@ -169,6 +170,7 @@ class GpaCalcScreenstate extends State<GpaCalcScreen> {
               continue;
             }
             int hours = int.parse(_selectionCp[i]);
+
             double gpa = calculate(_selection[i]);
             double gpahours = gpa * hours;
             sumgpahours += gpahours;
@@ -176,9 +178,10 @@ class GpaCalcScreenstate extends State<GpaCalcScreen> {
           }
           newgpa = sumgpahours / totalnewhours;
           int totaloldnewhours = totalnewhours + widget.totalOldCreidt;
-          double totalGPA = ((widget.oldGpa * widget.totalOldCreidt +
-                  newgpa * totalnewhours)) /
-              totaloldnewhours;
+          double totalGPA =
+              ((widget.oldGpa * (widget.totalOldCreidt - widget.covid) +
+                      newgpa * totalnewhours)) /
+                  (totaloldnewhours - widget.covid);
           print(totalGPA);
           if (safeToNavigate) {
             gpashow(newgpa, totalGPA);

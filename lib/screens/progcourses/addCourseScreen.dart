@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:revive/Models/courseModel.dart';
 import 'package:revive/helpers/database_helperCourse.dart';
 import 'package:revive/screens/progcourses/progresscoursesscreen.dart';
-import 'package:revive/widgets/drawer.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AddCourseScreen extends StatefulWidget {
@@ -47,8 +46,8 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
 
   _delete() {
     DatabaseHelper.instance.deleteCourse(widget.course.id);
-    Navigator.of(context)
-        .pushNamedAndRemoveUntil(DrawerS.routeName, (route) => false);
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
     Navigator.of(context).pushNamed(MainScreen.routeName);
   }
 
@@ -57,6 +56,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
       if (_formKey.currentState.validate()) {
         if (covid) {
           _status = 0;
+          _gpa = 0;
         } else {
           _status = 1;
         }
@@ -73,8 +73,8 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
           course.status = widget.course.status;
           DatabaseHelper.instance.updateCourse(course);
         }
-        Navigator.of(context)
-            .pushNamedAndRemoveUntil(DrawerS.routeName, (route) => false);
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
         Navigator.of(context).pushNamed(MainScreen.routeName);
       }
       print(covid);
@@ -187,31 +187,32 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                             },
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
-                          child: TextFormField(
-                            keyboardType: TextInputType.number,
-                            style: TextStyle(fontSize: 18),
-                            decoration: InputDecoration(
-                              labelText: 'GPA',
-                              labelStyle: TextStyle(fontSize: 18),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
+                        if (!covid)
+                          Padding(
+                            padding: EdgeInsets.symmetric(vertical: 20.0),
+                            child: TextFormField(
+                              keyboardType: TextInputType.number,
+                              style: TextStyle(fontSize: 18),
+                              decoration: InputDecoration(
+                                labelText: 'GPA',
+                                labelStyle: TextStyle(fontSize: 18),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
                               ),
+                              validator: (input) => input.trim().isEmpty
+                                  ? 'please enter a course GPA'
+                                  : double.parse(input) > 4
+                                      ? 'there is no GPA more than 4'
+                                      : null,
+                              onSaved: (input) {
+                                _gpa = double.parse(input);
+                              },
                             ),
-                            validator: (input) => input.trim().isEmpty
-                                ? 'please enter a course GPA'
-                                : double.parse(input) > 4
-                                    ? 'there is no GPA more than 4'
-                                    : null,
-                            onSaved: (input) {
-                              _gpa = double.parse(input);
-                            },
                           ),
-                        ),
                         CheckboxListTile(
                             title: Text(
-                              'Was this course passed?',
+                              'Was this course passed in covid semester?',
                               style: TextStyle(
                                   decoration: TextDecoration.underline,
                                   fontWeight: FontWeight.bold,
@@ -221,6 +222,7 @@ class _AddCourseScreenState extends State<AddCourseScreen> {
                             onChanged: (value) {
                               setState(() {
                                 covid = value;
+                                print(covid);
                               });
                             }),
                         SizedBox(

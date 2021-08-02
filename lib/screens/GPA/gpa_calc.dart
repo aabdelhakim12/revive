@@ -12,6 +12,7 @@ class _GPACalcState extends State<GPACalc> {
   final _formKey = GlobalKey<FormState>();
   int _numSbj;
   int totalOldCreidt;
+  int covidcred;
   double oldGpa;
 
   _submit() {
@@ -26,6 +27,7 @@ class _GPACalcState extends State<GPACalc> {
                     n: _numSbj,
                     totalOldCreidt: totalOldCreidt,
                     oldGpa: oldGpa,
+                    covid: covidcred,
                   )));
     }
   }
@@ -101,6 +103,7 @@ class _GPACalcState extends State<GPACalc> {
                     'Note: please enter your old GPA and total passed hours and courses number , if it was your first semster put old GPA and total old credits with zeroes',
                     textAlign: TextAlign.center,
                     style: TextStyle(
+                      decoration: TextDecoration.underline,
                       fontSize: 20,
                       fontWeight: FontWeight.w600,
                     ),
@@ -184,9 +187,32 @@ class _GPACalcState extends State<GPACalc> {
                             _numSbj = int.parse(_numSb);
                           });
                         }),
+                    Divider(
+                        height: 40,
+                        color: Theme.of(context).dividerColor,
+                        thickness: 2),
+                    TextFormField(
+                        keyboardType: TextInputType.number,
+                        style: TextStyle(fontSize: 18),
+                        decoration: InputDecoration(
+                          labelText: 'Covid credit hours',
+                          labelStyle: TextStyle(fontSize: 18),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        validator: (input) => input.trim().isEmpty
+                            ? 'Please enter credit hours'
+                            : null,
+                        onSaved: (input) {
+                          setState(() {
+                            String covid = input;
+                            covidcred = int.parse(covid);
+                          });
+                        }),
                   ]),
                 ),
-                SizedBox(height: size.height * 0.2),
+                SizedBox(height: size.height * 0.1),
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(
