@@ -21,6 +21,7 @@ class _MainScreenState extends State<MainScreen> {
   int cred;
   bool isdark;
   bool sysnew;
+  double gpaa;
 
   getPref() async {
     if (sysnew == null) sysnew = false;
@@ -157,6 +158,7 @@ class _MainScreenState extends State<MainScreen> {
                   int creprog = 0;
                   int covidSum = 0;
                   bool error = false;
+
                   for (int i = 0; i < snapshot.data.length; i++) {
                     cred = snapshot.data[i].credit;
                     sum = sum + cred;
