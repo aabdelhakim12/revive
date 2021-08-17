@@ -277,31 +277,6 @@ class _DrawerSState extends State<DrawerS> {
                         ),
                       ]),
                     ),
-                    // Row(
-                    //   mainAxisAlignment: main,
-                    //   children: [
-                    //     GestureDetector(
-                    //       onTap: () {
-                    //         Navigator.of(context).pushNamed(AddNews.routeName);
-                    //       },
-                    //       child: Container(
-                    //         padding: EdgeInsets.all(10),
-                    //         margin: EdgeInsets.only(top: 15, bottom: 10),
-                    //         decoration: decoration,
-                    //         width: size.width * 0.4,
-                    //         height: size.height * 0.3,
-                    //         child: Column(mainAxisAlignment: main, children: [
-                    //           Image.asset(
-                    //             'assets/images/news.png',
-                    //             height: size.height * 0.18,
-                    //           ),
-                    //           AutoSizeText('Add News',
-                    //               style: style, maxLines: 2)
-                    //         ]),
-                    //       ),
-                    //     ),
-                    //   ],
-                    // ),
                     SizedBox(height: 50),
                   ]),
                 ),
