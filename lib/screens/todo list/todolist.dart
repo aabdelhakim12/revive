@@ -15,7 +15,7 @@ class ToDoList extends StatefulWidget {
 class _ToDoListState extends State<ToDoList> {
   bool isdark;
   Future<List<Task>> _taskList;
-  final DateFormat _dateFormater = DateFormat('MMM dd, yyyy');
+  final DateFormat _dateFormater = DateFormat('MMM dd, yyyy, HH:mm');
   @override
   void initState() {
     super.initState();

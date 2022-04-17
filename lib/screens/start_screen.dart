@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:revive/api/notification_api.dart';
+import 'package:revive/screens/todo%20list/todolist.dart';
 import 'package:revive/widgets/drawer.dart';
 import 'package:video_player/video_player.dart';
 
@@ -14,6 +16,8 @@ class _StartScreenState extends State<StartScreen> {
   @override
   void initState() {
     super.initState();
+    NotificationApi.init(initScheduled: true);
+    listenNotifications();
     Timer(Duration(seconds: 8), () {
       setState(() {
         Navigator.pushReplacement(
@@ -27,6 +31,13 @@ class _StartScreenState extends State<StartScreen> {
         setState(() {});
       });
   }
+
+  void listenNotifications() {
+    NotificationApi.onNotifications.stream.listen(onclickedNotification);
+  }
+
+  void onclickedNotification(String plyload) => Navigator.of(context)
+      .push(MaterialPageRoute(builder: (context) => ToDoList()));
 
   @override
   Widget build(BuildContext context) {

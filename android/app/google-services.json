@@ -7,9 +7,38 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:993712203814:android:c7bd1edc5d27aff4889ee7",
+        "android_client_info": {
+          "package_name": "com.bme.revive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993712203814-d8j4hgm24ak9a76mfse4ruljf8vbrrti.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMOhMmfeHU6zPr4IvAVjqjzEdDirKUFH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993712203814-d8j4hgm24ak9a76mfse4ruljf8vbrrti.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:993712203814:android:1906d96673fc5565889ee7",
         "android_client_info": {
-          "package_name": "com.example.revive"
+          "package_name": "com.bme.revive"
         }
       },
       "oauth_client": [

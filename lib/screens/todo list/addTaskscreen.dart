@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:revive/Models/taskModel.dart';
+import 'package:revive/api/notification_api.dart';
 import 'package:revive/helpers/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -22,7 +24,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   DateTime _date = DateTime.now();
   TextEditingController _dateController = TextEditingController();
   bool isdark;
-  final DateFormat _dateFormater = DateFormat('MMM dd, yyyy');
+  final DateFormat _dateFormater = DateFormat('MMM dd, yyyy, HH:mm');
   final List<String> _priorities = ['low', 'medium', 'high'];
 
   @override
@@ -42,21 +44,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   void dispose() {
     _dateController.dispose();
     super.dispose();
-  }
-
-  _handleDatePicker() async {
-    final DateTime date = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2100),
-    );
-    if (date != null && date != _date) {
-      setState(() {
-        _date = date;
-      });
-      _dateController.text = _dateFormater.format(date);
-    }
   }
 
   _delete() {
@@ -80,6 +67,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         task.status = widget.task.status;
         DatabaseHelper.instance.updateTask(task);
       }
+      NotificationApi.showScheduledNotification(
+          id: _date.month * 100000000 +
+              _date.day * 1000000 +
+              _date.hour * 10000 +
+              _date.minute * 100,
+          scheduledDate: _date,
+          title: _title,
+          body: _priority,
+          payload: '');
       Navigator.of(context).pop();
       Navigator.of(context).pop();
       Navigator.of(context).pushNamed(ToDoList.routeName);
@@ -136,13 +132,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   Form(
                     key: _formKey,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Text(
+                          'Title',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          padding: EdgeInsets.only(bottom: 20.0, top: 5),
                           child: TextFormField(
                             style: TextStyle(fontSize: 18),
                             decoration: InputDecoration(
-                              labelText: 'Title',
+                              labelText: 'Enter task title',
                               labelStyle: TextStyle(fontSize: 18),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
@@ -155,24 +157,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             initialValue: _title,
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
-                          child: TextFormField(
-                            readOnly: true,
-                            controller: _dateController,
-                            style: TextStyle(fontSize: 18),
-                            onTap: _handleDatePicker,
-                            decoration: InputDecoration(
-                              labelText: 'Date',
-                              labelStyle: TextStyle(fontSize: 18),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                            ),
-                          ),
+                        Text(
+                          'Priority',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          padding: EdgeInsets.only(bottom: 20.0, top: 5),
                           child: DropdownButtonFormField(
                             onTap: () =>
                                 FocusManager.instance.primaryFocus.unfocus(),
@@ -189,7 +180,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               );
                             }).toList(),
                             decoration: InputDecoration(
-                              labelText: 'Priority',
+                              labelText: 'Choose task priority',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
@@ -206,50 +197,108 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                             },
                           ),
                         ),
+                        Text(
+                          'Time',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 20.0, top: 5),
+                          child: TextFormField(
+                            readOnly: true,
+                            controller: _dateController,
+                            style: TextStyle(fontSize: 18),
+                            onTap: () {
+                              DatePicker.showDateTimePicker(context,
+                                  showTitleActions: true,
+                                  minTime: DateTime.now(),
+                                  theme: DatePickerTheme(
+                                      cancelStyle: TextStyle(
+                                        color: Theme.of(context).errorColor,
+                                      ),
+                                      doneStyle: TextStyle(
+                                          color:
+                                              Theme.of(context).primaryColor)),
+                                  onChanged: (date) {
+                                setState(() {
+                                  if (date != null && date != _date) {
+                                    setState(() {
+                                      _date = date;
+                                    });
+                                    _dateController.text =
+                                        _dateFormater.format(date);
+                                  }
+                                  print('change $date in time zone ' +
+                                      date.timeZoneOffset.inHours.toString());
+                                });
+                              }, onConfirm: (date) {
+                                if (date != null && date != _date) {
+                                  setState(() {
+                                    _date = date;
+                                  });
+                                  _dateController.text =
+                                      _dateFormater.format(date);
+                                  print('confirm $date');
+                                }
+                              }, currentTime: DateTime.now());
+                            },
+                            decoration: InputDecoration(
+                              suffixIcon: Icon(Icons.calendar_today_outlined),
+                              labelStyle: TextStyle(fontSize: 18),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          ),
+                        ),
                         SizedBox(
                           height: 20,
                         ),
-                        Container(
-                          margin: EdgeInsets.only(top: 50),
-                          height: 60,
-                          width: 120,
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).primaryColor,
-                                width: 4,
+                        Center(
+                          child: Container(
+                            margin: EdgeInsets.only(top: 40),
+                            height: 60,
+                            width: 120,
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context).primaryColor,
+                                  width: 4,
+                                ),
+                                borderRadius: BorderRadius.circular(30)),
+                            child: TextButton(
+                              child: Text(
+                                widget.task == null ? 'Add' : 'Update',
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 25,
+                                ),
                               ),
-                              borderRadius: BorderRadius.circular(30)),
-                          child: TextButton(
-                            child: Text(
-                              widget.task == null ? 'Add' : 'Update',
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 25,
-                              ),
+                              onPressed: () => _submit(),
                             ),
-                            onPressed: () => _submit(),
                           ),
                         ),
                         widget.task != null
-                            ? Container(
-                                margin: EdgeInsets.only(top: 20),
-                                height: 60,
-                                width: 120,
-                                decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: Theme.of(context).errorColor,
-                                      width: 4,
+                            ? Center(
+                                child: Container(
+                                  margin: EdgeInsets.only(top: 20),
+                                  height: 60,
+                                  width: 120,
+                                  decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Theme.of(context).errorColor,
+                                        width: 4,
+                                      ),
+                                      borderRadius: BorderRadius.circular(30)),
+                                  child: TextButton(
+                                    child: Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Theme.of(context).errorColor,
+                                        fontSize: 25,
+                                      ),
                                     ),
-                                    borderRadius: BorderRadius.circular(30)),
-                                child: TextButton(
-                                  child: Text(
-                                    'Delete',
-                                    style: TextStyle(
-                                      color: Theme.of(context).errorColor,
-                                      fontSize: 25,
-                                    ),
+                                    onPressed: () => _delete(),
                                   ),
-                                  onPressed: () => _delete(),
                                 ),
                               )
                             : SizedBox.shrink(),

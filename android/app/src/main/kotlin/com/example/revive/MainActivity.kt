@@ -1,4 +1,4 @@
-package com.example.revive
+package com.bme.revive
 
 import io.flutter.embedding.android.FlutterActivity
 

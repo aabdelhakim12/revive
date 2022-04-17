@@ -146,10 +146,6 @@ class _AddNewsState extends State<AddNews> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                '${snapshot.data.docs[i - 1].data()['date']}',
-                                textAlign: TextAlign.start,
-                              ),
                               IconButton(
                                 onPressed: () {
                                   _delete(snapshot.data.docs[i - 1].id);
@@ -163,6 +159,10 @@ class _AddNewsState extends State<AddNews> {
                                   Icons.delete,
                                   color: Colors.red,
                                 ),
+                              ),
+                              Text(
+                                '${snapshot.data.docs[i - 1].data()['date']}',
+                                textAlign: TextAlign.start,
                               ),
                             ],
                           )

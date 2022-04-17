@@ -4,12 +4,12 @@ import 'package:provider/provider.dart';
 import 'package:revive/Providers/themeprovider.dart';
 import 'package:revive/screens/PreReqCourses/CoursesScreen.dart';
 import 'package:revive/screens/aboutUs/aboutUsScreen.dart';
+import 'package:revive/screens/addNews/addnewsScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../screens/GPA/gpa_calc.dart';
 import '../screens/progcourses/progresscoursesscreen.dart';
 import '../screens/News/news_screen.dart';
 import '../screens/todo list/todolist.dart';
-import '../screens/addNews/addnewsScreen.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
 class DrawerS extends StatefulWidget {
@@ -277,7 +277,36 @@ class _DrawerSState extends State<DrawerS> {
                         ),
                       ]),
                     ),
-                    SizedBox(height: 50),
+                    Container(
+                      margin: EdgeInsets.only(top: 15),
+                      width: double.infinity,
+                      height: size.height * 0.3,
+                      child: Row(
+                        mainAxisAlignment: main,
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.of(context)
+                                  .pushNamed(AddNews.routeName);
+                            },
+                            child: Container(
+                              padding: EdgeInsets.all(10),
+                              decoration: decoration,
+                              width: size.width * 0.4,
+                              child: Column(mainAxisAlignment: main, children: [
+                                Image.asset(
+                                  'assets/images/news.png',
+                                  height: size.height * 0.18,
+                                ),
+                                AutoSizeText('Add BME News',
+                                    style: style, maxLines: 2)
+                              ]),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 60),
                   ]),
                 ),
               ),
