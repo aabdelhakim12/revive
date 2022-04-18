@@ -48,6 +48,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   _delete() {
     DatabaseHelper.instance.deleteTask(widget.task.id);
+    NotificationApi.cancelNotification(widget.task.date.month * 100000000 +
+        widget.task.date.day * 1000000 +
+        widget.task.date.hour * 10000 +
+        widget.task.date.minute * 100);
     Navigator.of(context).pop();
     Navigator.of(context).pop();
     Navigator.of(context).pushNamed(ToDoList.routeName);
@@ -62,20 +66,35 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       if (widget.task == null) {
         task.status = 0;
         DatabaseHelper.instance.insertTask(task);
+        NotificationApi.showScheduledNotification(
+            id: _date.month * 100000000 +
+                _date.day * 1000000 +
+                _date.hour * 10000 +
+                _date.minute * 100,
+            scheduledDate: _date,
+            title: _title,
+            body: _priority,
+            payload: '');
       } else {
         task.id = widget.task.id;
         task.status = widget.task.status;
         DatabaseHelper.instance.updateTask(task);
+        NotificationApi.cancelNotification(widget.task.date.month * 100000000 +
+            widget.task.date.day * 1000000 +
+            widget.task.date.hour * 10000 +
+            widget.task.date.minute * 100);
+        if (widget.task.status == 0) {
+          NotificationApi.showScheduledNotification(
+              id: _date.month * 100000000 +
+                  _date.day * 1000000 +
+                  _date.hour * 10000 +
+                  _date.minute * 100,
+              scheduledDate: _date,
+              title: _title,
+              body: _priority,
+              payload: '');
+        }
       }
-      NotificationApi.showScheduledNotification(
-          id: _date.month * 100000000 +
-              _date.day * 1000000 +
-              _date.hour * 10000 +
-              _date.minute * 100,
-          scheduledDate: _date,
-          title: _title,
-          body: _priority,
-          payload: '');
       Navigator.of(context).pop();
       Navigator.of(context).pop();
       Navigator.of(context).pushNamed(ToDoList.routeName);
@@ -186,7 +205,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                               ),
                             ),
                             validator: (input) => _priority == null
-                                ? 'please select a priority level'
+                                ? 'please choose a priority level'
                                 : null,
                             onChanged: (value) {
                               setState(() {
@@ -205,6 +224,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         Padding(
                           padding: EdgeInsets.only(bottom: 20.0, top: 5),
                           child: TextFormField(
+                            validator: (input) => _date.isBefore(DateTime.now())
+                                ? 'don\'t choose passed time'
+                                : null,
                             readOnly: true,
                             controller: _dateController,
                             style: TextStyle(fontSize: 18),
@@ -232,14 +254,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                       date.timeZoneOffset.inHours.toString());
                                 });
                               }, onConfirm: (date) {
-                                if (date != null && date != _date) {
+                                if (date != null &&
+                                    date != _date &&
+                                    date.isAfter(DateTime.now())) {
                                   setState(() {
                                     _date = date;
                                   });
                                   _dateController.text =
                                       _dateFormater.format(date);
                                   print('confirm $date');
-                                }
+                                } else {}
                               }, currentTime: DateTime.now());
                             },
                             decoration: InputDecoration(

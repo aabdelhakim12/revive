@@ -1,7 +1,9 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:revive/Models/taskModel.dart';
+import 'package:revive/api/Notification_api.dart';
 import 'package:revive/helpers/database_helper.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'addTaskscreen.dart';
@@ -54,7 +56,7 @@ class _ToDoListState extends State<ToDoList> {
             ),
           ),
           subtitle: Text(
-            '${_dateFormater.format(task.date)} • ${task.priority}',
+            '${task.date.isBefore(DateTime.now()) ? 'Time passed! • ' : ''}${_dateFormater.format(task.date)} • ${task.priority}',
             style: TextStyle(
               fontSize: 15,
               decoration: task.status == 0
@@ -65,7 +67,29 @@ class _ToDoListState extends State<ToDoList> {
           leading: Checkbox(
             value: task.status == 1 ? true : false,
             onChanged: (value) {
-              task.status = value ? 1 : 0;
+              if (value) {
+                task.status = value ? 1 : 0;
+                NotificationApi.cancelNotification(task.date.month * 100000000 +
+                    task.date.day * 1000000 +
+                    task.date.hour * 10000 +
+                    task.date.minute * 100);
+                print('Notification canceled');
+              } else {
+                if (task.date.isAfter(DateTime.now())) {
+                  NotificationApi.showScheduledNotification(
+                      id: task.date.month * 100000000 +
+                          task.date.day * 1000000 +
+                          task.date.hour * 10000 +
+                          task.date.minute * 100,
+                      scheduledDate: task.date,
+                      title: task.title,
+                      body: task.priority,
+                      payload: '');
+                  print('Notification activated');
+                  task.status = value ? 1 : 0;
+                } else
+                  notificationTimePassed();
+              }
               DatabaseHelper.instance.updateTask(task);
               _updateTaskList();
             },
@@ -251,5 +275,47 @@ class _ToDoListState extends State<ToDoList> {
         ),
       ]),
     );
+  }
+
+  notificationTimePassed() {
+    return AwesomeDialog(
+        context: context,
+        isDense: true,
+        btnCancel: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.red,
+                width: 4,
+              ),
+              borderRadius: BorderRadius.circular(30),
+            ),
+            child: TextButton(
+              child: Text(
+                'Cancel',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 25,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )),
+        body: Container(
+            padding: EdgeInsets.all(10),
+            margin: EdgeInsets.all(4),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  colors: [Color(0xff2a61a8), Color(0xff2d377a)],
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Text(
+                'Time of this task has already passed you may need to do it now or reset time',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 25.0, color: Colors.white))),
+        dialogType: DialogType.WARNING)
+      ..show();
   }
 }

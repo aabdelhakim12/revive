@@ -20,6 +20,10 @@ class NotificationApi {
     );
   }
 
+  static Future cancelNotification(int id) async {
+    await _notification.cancel(id);
+  }
+
   static Future init({bool initScheduled = false}) async {
     final ios = IOSInitializationSettings();
     final android = AndroidInitializationSettings('@mipmap/ic_launcher');
